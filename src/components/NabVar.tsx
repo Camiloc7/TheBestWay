@@ -1,6 +1,5 @@
 "use client";
 
-
 import React, { useState } from 'react';
 import { ShoppingBag, Menu, Search, User, ChevronDown, Heart } from 'lucide-react';
 
@@ -8,7 +7,21 @@ const NabVar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-  const categories = {
+  // Definir explícitamente el tipo de `categories`
+  type CategoryWithFeatured = {
+    featured: { name: string; image: string }[];
+    sections: { title: string; items: string[] }[];
+  };
+  
+  type CategoryWithoutFeatured = {
+    sections: { title: string; items: string[] }[];
+  };
+  
+  type Categories = {
+    [key: string]: CategoryWithFeatured | CategoryWithoutFeatured;
+  };
+  
+  const categories: Categories = {
     'Tienda': {
       featured: [
         { name: 'Nueva Colección', image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
@@ -34,6 +47,12 @@ const NabVar = () => {
       ]
     }
   };
+
+  // Type guard para verificar si una categoría tiene 'featured'
+const hasFeatured = (category: CategoryWithFeatured | CategoryWithoutFeatured): category is CategoryWithFeatured => {
+  return 'featured' in category; // Verifica si 'featured' es una propiedad de 'category'
+};
+
 
   return (
     <>
@@ -67,7 +86,8 @@ const NabVar = () => {
                 >
                   <button className="flex items-center space-x-1 py-2 text-gray-700 hover:text-[#875241] transition-colors duration-200">
                     <span>{item}</span>
-                    {categories[item] && (
+                    {/* Usamos el type guard para verificar si la categoría tiene 'featured' */}
+                    {activeCategory && hasFeatured(categories[activeCategory]) && (
                       <ChevronDown className="w-4 h-4 transition-transform duration-200 group-hover:rotate-180" />
                     )}
                   </button>
@@ -113,7 +133,7 @@ const NabVar = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
               <div className="grid grid-cols-12 gap-8">
                 {/* Featured Items */}
-                {categories[activeCategory].featured && (
+                {activeCategory && hasFeatured(categories[activeCategory]) && (
                   <div className="col-span-4">
                     <h3 className="text-lg font-medium text-[#875241] mb-4">Destacados</h3>
                     <div className="grid grid-cols-2 gap-4">
@@ -137,7 +157,7 @@ const NabVar = () => {
                 )}
 
                 {/* Menu Sections */}
-                <div className={`${categories[activeCategory].featured ? 'col-span-8' : 'col-span-12'} grid grid-cols-3 gap-8`}>
+                <div className={`${hasFeatured(categories[activeCategory]) ? 'col-span-8' : 'col-span-12'} grid grid-cols-3 gap-8`}>
                   {categories[activeCategory].sections.map((section, index) => (
                     <div key={index}>
                       <h3 className="text-lg font-medium text-[#875241] mb-4">{section.title}</h3>
@@ -160,47 +180,7 @@ const NabVar = () => {
             </div>
           </div>
         )}
-
-        {/* Mobile Menu */}
-        <div
-          className={`lg:hidden fixed inset-0 bg-black/50 z-50 transition-opacity duration-300 ${
-            isMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-          }`}
-          onClick={() => setIsMenuOpen(false)}
-        >
-          <div
-            className={`absolute right-0 top-0 h-full w-64 bg-white transform transition-transform duration-300 ${
-              isMenuOpen ? 'translate-x-0' : 'translate-x-full'
-            }`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-8">
-                <h3 className="text-lg font-medium text-[#875241]">Menú</h3>
-                <button
-                  className="p-2 hover:bg-[#F9E5EE] rounded-full"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <Menu className="w-5 h-5 text-[#875241]" />
-                </button>
-              </div>
-              <nav className="space-y-4">
-                {Object.keys(categories).concat(['Inicio', 'Nosotros', 'Eventos', 'Contacto']).map((item) => (
-                  <a
-                    key={item}
-                    href="#"
-                    className="block py-2 text-gray-700 hover:text-[#875241] transition-colors duration-200"
-                  >
-                    {item}
-                  </a>
-                ))}
-              </nav>
-            </div>
-          </div>
-        </div>
       </header>
-      {/* Spacer for fixed header */}
-      <div className="h-[98px]" />
     </>
   );
 };
