@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { ShoppingBag, Menu, Search, User, ChevronDown, Heart } from 'lucide-react';
+import Image from 'next/image';
 
 const NabVar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -48,9 +49,8 @@ const NabVar = () => {
     }
   };
 
-  // Type guard para verificar si una categoría tiene 'featured'
 const hasFeatured = (category: CategoryWithFeatured | CategoryWithoutFeatured): category is CategoryWithFeatured => {
-  return 'featured' in category; // Verifica si 'featured' es una propiedad de 'category'
+  return 'featured' in category; 
 };
 
 
@@ -69,9 +69,12 @@ const hasFeatured = (category: CategoryWithFeatured | CategoryWithoutFeatured): 
           <div className="flex justify-between items-center py-4">
             {/* Logo */}
             <div className="flex-shrink-0">
-              <h1 className="text-2xl font-serif font-bold text-[#875241]">
-                The Best Way
-              </h1>
+              <Image
+              src="/logo.png" 
+              alt="The Best Way Logo"
+              width={150} 
+              height={50} 
+            />
               <p className="text-sm text-[#D6958A]">Viste tu fe, crece en espíritu</p>
             </div>
 
